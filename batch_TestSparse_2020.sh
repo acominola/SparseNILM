@@ -8,8 +8,10 @@
 #./test_Algorithm.py sVa_BigO_L03 BigO_L03 AMPdsR1_1min_A_top3 10 A noisy 52000 SparseViterbi > logs/sVa_BigO_L03.log
 #./test_Algorithm.py sVa_BigO_L04 BigO_L04 AMPdsR1_1min_A_top4 10 A noisy 52000 SparseViterbi > logs/sVa_BigO_L04.log
 #./test_Algorithm.py sVa_BigO_L05 BigO_L05 AMPdsR1_1min_A_top5 10 A noisy 52000 SparseViterbi > logs/sVa_BigO_L05.log
-./test_Algorithm.py sVa_BigO_L05 BigO_L05 AMPdsR1_1min_A_top5_m1 10 A noisy 52000 SparseViterbi > logs/sVa_BigO_L05_m1.log
+#./test_Algorithm.py sVa_BigO_L05 BigO_L05 AMPdsR1_1min_A_top5_m1 10 A noisy 52000 SparseViterbi > logs/sVa_BigO_L05_m1.log
+#./test_Algorithm.py sVa_BigO_L05 BigO_L05 AMPdsR1_1min_A_top5_m2 10 A noisy 52000 SparseViterbi > logs/sVa_BigO_L05_m2.log
 #./test_Algorithm.py sVa_BigO_L05 BigO_L05 AMPdsR1_1min_A_top5_m3 10 A noisy 52000 SparseViterbi > logs/sVa_BigO_L05_m3.log
+./test_Algorithm.py sVa_BigO_L05 BigO_L05 AMPdsR1_1min_A_top5_m4 10 A noisy 52000 SparseViterbi > logs/sVa_BigO_L05_m4.log
 #./test_Algorithm.py sVa_BigO_L05 BigO_L05 AMPdsR1_1min_A_top5_m6 10 A noisy 52000 SparseViterbi > logs/sVa_BigO_L05_m6.log
 #./test_Algorithm.py sVa_BigO_L06 BigO_L06 AMPdsR1_1min_A_top6 10 A noisy 52000 SparseViterbi > logs/sVa_BigO_L06.log
 #./test_Algorithm.py sVa_BigO_L07 BigO_L07 AMPdsR1_1min_A_top7 10 A noisy 52000 SparseViterbi > logs/sVa_BigO_L07.log
