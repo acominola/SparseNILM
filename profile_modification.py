@@ -3,7 +3,7 @@ import os
 import matplotlib.pyplot as plt
 import numpy
 
-inputFileName = './datasets/AMPdsR1_1min_A_top5.csv'
+inputFileName = './datasets/AMPdsR1_1min_A_top10.csv'
 inputFileBase= os.path.splitext(inputFileName)[0]
 df = pandas.read_csv(inputFileName)
 profileLength = len(df['TimeStamp'])
@@ -13,9 +13,8 @@ profileLength = len(df['TimeStamp'])
 applName = 'CDE'
 usageThreshold = 1.0
 
-plt.subplot(3,1,1)
+plt.subplot(2,1,1)
 plt.plot(df['TimeStamp'], df['WHE'])
-plt.subplot(3,1,2)
 plt.plot(df['TimeStamp'], df[applName])
 
 # Assumption: Battery mean current should be zero over the period of time for continued usage.
@@ -26,7 +25,7 @@ plt.plot(df['TimeStamp'], df[applName])
 # Method 4: Change the mean of the appliance power consumption.
 # Method 5: Prolonging the usage time?
 
-method = 4
+method = 6
 
 if method == 1:
     outputFileName = inputFileBase + '_m1.csv'
@@ -64,7 +63,12 @@ elif method == 6:
     batteryProfile = df.WHE - totalAvgPower # + is battery discharge
     df.WHE = totalAvgPower
 
-plt.plot(df.TimeStamp.loc[batteryProfile.index], batteryProfile)
-plt.subplot(3,1,3)
-plt.plot(df.TimeStamp, df.WHE)
+soc = batteryProfile.cumsum();
+plt.subplot(2,1,2)
+#df.TimeStamp = df.TimeStamp - df.TimeStamp[0]
+#plt.plot(df.TimeStamp, df.WHE)
+#plt.plot(df.TimeStamp.loc[batteryProfile.index], batteryProfile)
+#plt.subplot(3,1,3)
+plt.plot(df.TimeStamp.loc[batteryProfile.index], (soc-soc.min())/(soc.max()-soc.min()))
 df.to_csv(outputFileName, index=False)
+

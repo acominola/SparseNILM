@@ -13,7 +13,6 @@ from libFolding import Folding
 from libSSHMM import SuperStateHMM
 from libAccuracy import Accuracy
 
-
 print()
 print('----------------------------------------------------------------------------------------------------------------')
 print('Test & Evaluate the Sparse Viterbi Algorithm with Saved SSHMMs  --  Copyright (C) 2013-2015, by Stephen Makonin.')
