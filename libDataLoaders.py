@@ -37,7 +37,7 @@ def AMPds_r2013(filename, ids, precision, denoised=False, verbose=True):
 
     if verbose: print('\tCalculating unmetered column %s.' % unmetered_col)
     df[unmetered_col] = df[agg_meter_col] - df[cols].sum(axis=1)
-    df.loc[df[unmetered_col] < 0] = 0
+    #df.loc[df[unmetered_col] < 0] = 0 # Changed Andrea
 
     return df
 
