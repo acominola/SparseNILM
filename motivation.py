@@ -14,6 +14,7 @@ from libDataLoaders import dataset_loader
 # Method 4: Change the mean of the appliance power consumption.
 # Method 5: Prolonging the usage time?
 # Method 6: Flat profile for the whole duration
+# Method 8: Random flat profile
 
 def main():
     displayLength = 1440*2
@@ -25,7 +26,7 @@ def main():
     plt.plot(df.TimeStamp[slice(0,displayLength,1)], df.WHE[slice(0,displayLength,1)])
     plt.subplot(2,4,6)
     plt.plot(df.TimeStamp[slice(0,displayLength,1)], df[applName][slice(0,displayLength,1)])
-    #df, batteryProfile = modifyProfile('./datasets/AMPdsR1_1min_A_top5.csv', applName, usageThreshold, 7, saveCsv)
+    df, batteryProfile = modifyProfile('./datasets/AMPdsR1_1min_A_top5.csv', applName, usageThreshold, 8, True)
     for i in [1,2,3,4,6,7]:
         df, batteryProfile = modifyProfile('./datasets/AMPdsR1_1min_A_top5.csv', applName, usageThreshold, i, saveCsv)
         plt.subplot(2,4,i+1)
@@ -175,6 +176,11 @@ def modifyProfile(inputFileName, applName, usageThreshold, method, save):
         batteryProfile = batteryProfile.melt().drop('variable',axis=1)
         batteryProfile = batteryProfile.dropna()
         df = dfDayList
+    elif method == 8:
+        outputFileName = inputFileBase + '_m8.csv'
+        Pval = 25
+        batteryProfile = df.WHE - Pval
+        df.WHE = Pval
 
     if save:
         df.to_csv(outputFileName, index=False)
