@@ -14,21 +14,28 @@ from libDataLoaders import dataset_loader
 # Method 4: Change the mean of the appliance power consumption.
 # Method 5: Prolonging the usage time?
 # Method 6: Flat profile for the whole duration
+# Method 7: Flat profile daily: same within a day, but can vary between days
 # Method 8: Random flat profile
 
 def main():
     displayLength = 1440*2
     usageThreshold = 1
-    saveCsv = False
+    saveCsv = True
     applName = 'CDE'
-    df = pandas.read_csv('./datasets/AMPdsR1_1min_A_top5.csv')
+    df = pandas.read_csv('./datasets/AMPdsR1_1min_A_top10.csv')
     plt.subplot(2,4,1)
     plt.plot(df.TimeStamp[slice(0,displayLength,1)], df.WHE[slice(0,displayLength,1)])
     plt.subplot(2,4,6)
     plt.plot(df.TimeStamp[slice(0,displayLength,1)], df[applName][slice(0,displayLength,1)])
-    df, batteryProfile = modifyProfile('./datasets/AMPdsR1_1min_A_top5.csv', applName, usageThreshold, 8, True)
-    for i in [1,2,3,4,6,7]:
-        df, batteryProfile = modifyProfile('./datasets/AMPdsR1_1min_A_top5.csv', applName, usageThreshold, i, saveCsv)
+    df, batteryProfile = modifyProfile('./datasets/AMPdsR1_1min_A_top10.csv', applName, usageThreshold, 8, 5, True)
+    for i in range(7):
+        df, batteryProfile = modifyProfile('./datasets/AMPdsR1_1min_A_top10.csv',applName, usageThreshold, 2,i,True)
+        plt.subplot(2, 4, i + 1)
+        plt.plot(df.TimeStamp[slice(0, displayLength, 1)], df.WHE[slice(0, displayLength, 1)])
+        print('Method ', i, ': ', calculateBatterySizeWh(batteryProfile))
+    #for i in [1,2,3,4,6,7]:
+    for i in [8]:
+        df, batteryProfile = modifyProfile('./datasets/AMPdsR1_1min_A_top5.csv', applName, usageThreshold, i, 5, saveCsv)
         plt.subplot(2,4,i+1)
         plt.plot(df.TimeStamp[slice(0, displayLength, 1)], df.WHE[slice(0, displayLength, 1)])
         print('Method ', i, ': ',calculateBatterySizeWh(batteryProfile))
@@ -91,7 +98,7 @@ def calculateBatterySizeWh(batteryProfile):
     return batteryEnergyProfileWh.max()-batteryEnergyProfileWh.min()
 
 
-def modifyProfile(inputFileName, applName, usageThreshold, method, save):
+def modifyProfile(inputFileName, applName, usageThreshold, method, noiseSize, save):
     # saves the modified profile as inputFileBase_m#.csv and returns the dataframe of the modified profile
     # and the batteryProfile (pandas dataframe) to achieve that modified profile
     # Assumption: Battery mean current should be zero over the period of time for continued usage.
@@ -122,14 +129,14 @@ def modifyProfile(inputFileName, applName, usageThreshold, method, save):
     #plt.plot(df['UNIX_TS'], df[applName])
 
     if method == 1:
-        outputFileName = inputFileBase + '_m1.csv'
-        noise = numpy.random.normal(0,5,profileLength)
+        outputFileName = inputFileBase + '_m1_' + str(noiseSize)+ '.csv'
+        noise = numpy.random.normal(0,noiseSize,profileLength)
         batteryProfile = noise
         df.WHE = df.WHE + noise
     elif method == 2:
-        outputFileName = inputFileBase + '_m2.csv'
+        outputFileName = inputFileBase + '_m2_' + str(noiseSize)+'.csv'
         applUsageLength = len(df[df[applName]>usageThreshold])
-        noise = pandas.Series(numpy.random.normal(0,5,applUsageLength))
+        noise = pandas.Series(numpy.random.normal(0,noiseSize,applUsageLength))
         noise.index = df.index[df[applName] > usageThreshold]
         batteryProfile = noise.reindex(range(profileLength),fill_value=0)
         df.WHE.loc[df[applName] > usageThreshold] = df.WHE + noise
@@ -177,8 +184,8 @@ def modifyProfile(inputFileName, applName, usageThreshold, method, save):
         batteryProfile = batteryProfile.dropna()
         df = dfDayList
     elif method == 8:
-        outputFileName = inputFileBase + '_m8.csv'
-        Pval = 25
+        outputFileName = inputFileBase + '_m8_30.csv'
+        Pval = 30
         batteryProfile = df.WHE - Pval
         df.WHE = Pval
 
