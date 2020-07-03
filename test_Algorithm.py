@@ -93,7 +93,7 @@ for (fold, priors, testing) in folds:
     sshmm = sshmms[fold]
     obs_id = list(testing)[0]
     obs = list(testing[obs_id])
-    hidden = [i for i in testing[labels].to_records(i=False)]
+    hidden = [i for i in testing[labels].to_records(index=False)]
     
     print()
     print('Begin evaluation testing on observations, compare against ground truth...')

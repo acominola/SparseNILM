@@ -21,24 +21,24 @@ def main():
     displayLength = 1440*2
     usageThreshold = 1
     saveCsv = True
-    applName = 'CDE'
+    applName = 'HPE'
     df = pandas.read_csv('./datasets/AMPdsR1_1min_A_top10.csv')
     plt.subplot(2,4,1)
     plt.plot(df.TimeStamp[slice(0,displayLength,1)], df.WHE[slice(0,displayLength,1)])
     plt.subplot(2,4,6)
     plt.plot(df.TimeStamp[slice(0,displayLength,1)], df[applName][slice(0,displayLength,1)])
-    df, batteryProfile = modifyProfile('./datasets/AMPdsR1_1min_A_top10.csv', applName, usageThreshold, 8, 5, True)
+    #df, batteryProfile = modifyProfile('./datasets/AMPdsR1_1min_A_top5.csv', applName, usageThreshold, 3, 5, False)
     for i in range(7):
-        df, batteryProfile = modifyProfile('./datasets/AMPdsR1_1min_A_top10.csv',applName, usageThreshold, 2,i,True)
+        df, batteryProfile = modifyProfile('./datasets/AMPdsR1_1min_A_top5.csv',applName, usageThreshold, 2,i,False)
         plt.subplot(2, 4, i + 1)
         plt.plot(df.TimeStamp[slice(0, displayLength, 1)], df.WHE[slice(0, displayLength, 1)])
         print('Method ', i, ': ', calculateBatterySizeWh(batteryProfile))
     #for i in [1,2,3,4,6,7]:
-    for i in [8]:
-        df, batteryProfile = modifyProfile('./datasets/AMPdsR1_1min_A_top5.csv', applName, usageThreshold, i, 5, saveCsv)
-        plt.subplot(2,4,i+1)
-        plt.plot(df.TimeStamp[slice(0, displayLength, 1)], df.WHE[slice(0, displayLength, 1)])
-        print('Method ', i, ': ',calculateBatterySizeWh(batteryProfile))
+    #for i in [8]:
+        #df, batteryProfile = modifyProfile('./datasets/AMPdsR1_1min_A_top5.csv', applName, usageThreshold, i, 5, saveCsv)
+        #plt.subplot(2,4,i+1)
+        #plt.plot(df.TimeStamp[slice(0, displayLength, 1)], df.WHE[slice(0, displayLength, 1)])
+        #print('Method ', i, ': ',calculateBatterySizeWh(batteryProfile))
     #df, batteryProfile = modifyProfile('./datasets/Electricity_p.csv', applName, usageThreshold, 7, saveCsv)
     #df, batteryProfile = modifyProfile('./datasets/AMPdsR1_1min_A_top5.csv', applName, usageThreshold, 7, saveCsv)
     #plt.subplot(2,4,7)
@@ -134,6 +134,7 @@ def modifyProfile(inputFileName, applName, usageThreshold, method, noiseSize, sa
         batteryProfile = noise
         df.WHE = df.WHE + noise
     elif method == 2:
+        inputFileBase = inputFileBase + applName
         outputFileName = inputFileBase + '_m2_' + str(noiseSize)+'.csv'
         applUsageLength = len(df[df[applName]>usageThreshold])
         noise = pandas.Series(numpy.random.normal(0,noiseSize,applUsageLength))
@@ -142,13 +143,15 @@ def modifyProfile(inputFileName, applName, usageThreshold, method, noiseSize, sa
         df.WHE.loc[df[applName] > usageThreshold] = df.WHE + noise
         #df.loc[]
     elif method == 3: # Method 3
+        inputFileBase = inputFileBase + applName
         outputFileName = inputFileBase+'_m3.csv'
         applMeanWhileUsed = df.loc[df[applName] > usageThreshold, applName].mean()
         batteryProfile = df[applName].apply(lambda x: x - applMeanWhileUsed if x>usageThreshold else 0) # + is battery discharge
         df.WHE = df.WHE - batteryProfile
     elif method == 4:
-        outputFileName = inputFileBase + '_m4.csv'
-        changeApplMeanBy = 5
+        inputFileBase = inputFileBase + applName
+        outputFileName = inputFileBase + '_m4_'+ str(noiseSize)+'.csv'
+        changeApplMeanBy = noiseSize*5
         applMeanWhileUsed = df.loc[df[applName] > usageThreshold, applName].mean()
         batteryProfile = df[applName].apply(lambda x: x - applMeanWhileUsed + changeApplMeanBy if x>usageThreshold else 0) # + is battery discharge
         batteryDischargeSum = batteryProfile.sum()
