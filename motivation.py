@@ -31,9 +31,9 @@ def main():
     displayLength = 1440*2 # The length of profile you want to draw graphs
     usageThreshold = 1 # This threshold is only for modifying the profile (not NILM)
     saveCsv = False # If you want to save the modified profile as a file. Check it if you generate it for the first time.
-    applName = 'CDE' # appliance of interest
+    applName = 'HPE' # appliance of interest
     applNum = 5 # the number of appliances considered
-    method = 3 # Method number
+    method = 1 # Method number
 
     inputFilePrefix = './datasets/AMPdsR1_1min_A_top'
     inputFileName = inputFilePrefix + str(applNum) + '.csv'
@@ -75,12 +75,13 @@ def main():
     for i in range(7): # methods 1, 2
     #for i in range(0,25,5): # method 4 HPE and CDE
     # for i in [0]: # method 5 (erase an appliance)
-    #for i in [0]: # method 4 FRE (is always used so impossible to modify average)
+    #for i in [0]: # method 4 FRE (is always used so impossible to modify average) & method 7
         k = k + 1
         df, outputFileName = modifyProfile(inputFileName,applName, usageThreshold, method,i,saveCsv)
         plt.subplot(2, 4, k)
         plt.plot(df.TimeStamp[slice(0, displayLength, 1)], df.WHE[slice(0, displayLength, 1)])
-        print('Method ', i, ' batSize: ', calculateBatterySizeWh(df['BAT']), ' Wh')
+        #print('Method ', i, ' batSize: ', calculateBatterySizeWh(df['BAT']), ' Wh')
+        print('Method ', i, ' batSize: ', calculateBatterySizeWhDay(df['BAT']), ' Wh')
         dataset = os.path.split(os.path.splitext(outputFileName)[0])[1]
         logFileName = 'logs/'+ test_id + applName + '_m'+str(method) +'_' + str(i) + '.log'
         accFileName = 'logs/acc_'+test_id + applName + '_m'+str(method)+'_'+str(i)+'.csv'
@@ -176,6 +177,16 @@ def trainModel(precision,max_obs,denoised,max_states,folds,ids):
 def calculateBatterySizeWh(batteryProfile):
     batteryEnergyProfileWh = batteryProfile.cumsum()*60/3600*110 # assumes 100% charging/discharging efficiency
     return batteryEnergyProfileWh.max()-batteryEnergyProfileWh.min()
+
+
+def calculateBatterySizeWhDay(batteryProfile):
+    batteryProfileDayList = numpy.split(batteryProfile, list(range(1440,1440*365,1440)))  # split into multiple dataframes (1 dataframe = 1 day)
+    batteryProfileDayList = [x.reset_index() for x in batteryProfileDayList]
+    batteryProfileDayList = [x.drop('index', axis=1) for x in batteryProfileDayList]
+    batteryProfileDayList = pandas.concat(batteryProfileDayList, axis=1)
+    batteryDayCumSumList = batteryProfileDayList.cumsum()
+    maxBatteryCapacity =  (batteryDayCumSumList.max() - batteryDayCumSumList.min()).max()
+    return maxBatteryCapacity*60*110/3600
 
 
 def modifyProfile(inputFileName, applName, usageThreshold, method, noiseSize, save):
